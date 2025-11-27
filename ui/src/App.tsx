@@ -8,6 +8,7 @@ import AppointmentsPage from './pages/AppointmentsPage';
 import LabOrdersPage from './pages/LabOrdersPage';
 import InpatientManagement from './pages/InpatientManagement';
 import ReportsDashboard from './pages/ReportsDashboard';
+import PharmacyDashboard from './pages/PharmacyDashboard';
 
 function App() {
   return (
@@ -52,6 +53,12 @@ function App() {
                   >
                     Reports
                   </Link>
+                  <Link
+                    to="/pharmacy"
+                    className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                  >
+                    Pharmacy
+                  </Link>
                 </div>
               </div>
               <div className="flex items-center">
@@ -74,6 +81,7 @@ function App() {
             <Route path="/labs" element={<LabOrdersPage />} />
             <Route path="/inpatient" element={<InpatientManagement />} />
             <Route path="/reports" element={<ReportsDashboard />} />
+            <Route path="/pharmacy" element={<PharmacyDashboard />} />
           </Routes>
         </main>
       </div>

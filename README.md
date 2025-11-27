@@ -1,4 +1,4 @@
-# Zarish-HIS (Hospital Information System Module)
+# Zarish-HIS (Health Information System Module)
 
 Clinical data management module for ZarishSphere Platform, providing EHR capabilities.
 
@@ -11,6 +11,7 @@ Clinical data management module for ZarishSphere Platform, providing EHR capabil
 ## API Endpoints
 
 ### Patients
+
 - `POST /api/v1/patients` - Create patient
 - `GET /api/v1/patients/:id` - Get patient by ID
 - `GET /api/v1/patients` - List patients (paginated)

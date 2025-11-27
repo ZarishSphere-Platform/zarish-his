@@ -69,6 +69,9 @@ func main() {
 		&models.Room{},
 		&models.Bed{},
 		&models.Admission{},
+		&models.PharmacyStock{},
+		&models.Dispensing{},
+		&models.StockMovement{},
 	)
 	if err != nil {
 		log.Fatal("Failed to migrate database:", err)
@@ -109,6 +112,11 @@ func main() {
 	// Initialize Reporting
 	reportingService := service.NewReportingService(db)
 	reportingHandler := handler.NewReportingHandler(reportingService)
+
+	// Initialize Pharmacy
+	pharmacyRepo := repository.NewPharmacyRepository(db)
+	pharmacyService := service.NewPharmacyService(pharmacyRepo)
+	pharmacyHandler := handler.NewPharmacyHandler(pharmacyService)
 
 	// Setup Router
 	r := gin.Default()
@@ -199,6 +207,15 @@ func main() {
 		// Reporting Routes
 		api.GET("/reports/daily-opd", reportingHandler.GetDailyOPDReport)
 		api.GET("/reports/disease-surveillance", reportingHandler.GetDiseaseSurveillanceReport)
+
+		// Pharmacy Routes
+		api.POST("/pharmacy/stock", pharmacyHandler.AddStock)
+		api.GET("/pharmacy/stock/:medication_id", pharmacyHandler.GetStock)
+		api.GET("/pharmacy/stock/low", pharmacyHandler.GetLowStock)
+		api.POST("/pharmacy/dispense", pharmacyHandler.DispenseMedication)
+		api.GET("/pharmacy/dispensing-queue", pharmacyHandler.GetDispensingQueue)
+		api.GET("/pharmacy/history/:patient_id", pharmacyHandler.GetPatientHistory)
+		api.GET("/pharmacy/movements/:medication_id", pharmacyHandler.GetStockMovements)
 	}
 
 	log.Printf("Zarish-HIS server starting on :%s", port)

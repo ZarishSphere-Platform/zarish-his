@@ -85,6 +85,7 @@ export interface Prescription {
   id: number;
   encounter_id: number;
   patient_id: number;
+  patient?: Patient;
   medication_id: number;
   medication?: Medication;
   dosage: string;
