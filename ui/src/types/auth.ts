@@ -1,5 +1,5 @@
 // Authentication and Authorization types
-import type { GeoPoint, Period, SyncStatus } from './common';
+import type { GeoPoint } from './common';
 
 export interface User {
     id: string;
