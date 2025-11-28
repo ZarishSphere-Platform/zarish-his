@@ -54,8 +54,8 @@ type Patient struct {
 	Religion      string `gorm:"size:50" json:"religion,omitempty"` // islam, hinduism, buddhism, christianity, other
 
 	// Emergency contact
-	EmergencyContactName  string `gorm:"size:200" json:"emergency_contact_name,omitempty"`
-	EmergencyContactPhone string `gorm:"size:50" json:"emergency_contact_phone,omitempty"`
+	EmergencyContactName     string `gorm:"size:200" json:"emergency_contact_name,omitempty"`
+	EmergencyContactPhone    string `gorm:"size:50" json:"emergency_contact_phone,omitempty"`
 	EmergencyContactRelation string `gorm:"size:50" json:"emergency_contact_relation,omitempty"`
 
 	// Photo
@@ -73,6 +73,9 @@ type Patient struct {
 	Appointments  []Appointment  `gorm:"foreignKey:PatientID" json:"appointments,omitempty"`
 	Prescriptions []Prescription `gorm:"foreignKey:PatientID" json:"prescriptions,omitempty"`
 	LabOrders     []LabOrder     `gorm:"foreignKey:PatientID" json:"lab_orders,omitempty"`
+
+	// Clinical Decision Support
+	Allergies []string `gorm:"type:text[]" json:"allergies,omitempty"`
 }
 
 // TableName overrides the table name
@@ -136,9 +139,9 @@ func (p *Patient) Validate() error {
 
 // Custom errors
 var (
-	ErrNationalityRequired      = &ValidationError{Field: "nationality", Message: "Nationality is required"}
-	ErrBangladeshiIDRequired    = &ValidationError{Field: "national_id", Message: "National ID or Birth Registration Number is required for Bangladeshi citizens"}
-	ErrRohingyaUNHCRRequired    = &ValidationError{Field: "unhcr_number", Message: "UNHCR number is required for Rohingya refugees"}
+	ErrNationalityRequired   = &ValidationError{Field: "nationality", Message: "Nationality is required"}
+	ErrBangladeshiIDRequired = &ValidationError{Field: "national_id", Message: "National ID or Birth Registration Number is required for Bangladeshi citizens"}
+	ErrRohingyaUNHCRRequired = &ValidationError{Field: "unhcr_number", Message: "UNHCR number is required for Rohingya refugees"}
 )
 
 type ValidationError struct {

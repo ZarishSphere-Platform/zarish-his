@@ -19,6 +19,7 @@ export interface Patient {
   city?: string;
   country: string;
   photo_url?: string;
+  allergies?: string[];
 }
 
 export interface Encounter {

@@ -1,5 +1,5 @@
+import type { Admission, Bed, Room, Ward } from '../types/adt';
 import api from './api';
-import type { Ward, Room, Bed, Admission } from '../types/adt';
 
 export const ADTService = {
   // Wards
@@ -43,6 +43,28 @@ export const ADTService = {
 
   listActiveAdmissions: async (): Promise<Admission[]> => {
     const response = await api.get<Admission[]>('/admissions/active');
+    return response.data;
+  },
+
+  getAdmission: async (id: number): Promise<Admission> => {
+    const response = await api.get<Admission>(`/admissions/${id}`);
+    return response.data;
+  },
+
+  // Transfers
+  transferPatient: async (data: any): Promise<void> => {
+    await api.post('/transfers', data);
+  },
+
+  // Discharge Summaries
+  createDischargeSummary: async (data: any): Promise<void> => {
+    await api.post('/discharge-summaries', data);
+  },
+
+  getDischargeSummary: async (admissionId: number): Promise<any> => {
+    const response = await api.get(
+      `/admissions/${admissionId}/discharge-summary`
+    );
     return response.data;
   },
 };

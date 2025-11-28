@@ -8,11 +8,15 @@ import (
 )
 
 type MedicationService struct {
-	repo *repository.MedicationRepository
+	repo       *repository.MedicationRepository
+	cdsService *CDSService
 }
 
-func NewMedicationService(repo *repository.MedicationRepository) *MedicationService {
-	return &MedicationService{repo: repo}
+func NewMedicationService(repo *repository.MedicationRepository, cdsService *CDSService) *MedicationService {
+	return &MedicationService{
+		repo:       repo,
+		cdsService: cdsService,
+	}
 }
 
 // Medication methods
@@ -54,4 +58,36 @@ func (s *MedicationService) ListPatientPrescriptions(patientID uint) ([]*models.
 
 func (s *MedicationService) ListActivePrescriptions(patientID uint) ([]*models.Prescription, error) {
 	return s.repo.ListActivePrescriptions(patientID)
+}
+
+// CheckPrescriptionSafety validates a prescription against CDS rules
+func (s *MedicationService) CheckPrescriptionSafety(prescription *models.Prescription, patient *models.Patient) ([]string, error) {
+	var warnings []string
+
+	// 1. Check Allergies
+	// Need to fetch medication name first if not present
+	med, err := s.repo.FindMedicationByID(prescription.MedicationID)
+	if err != nil {
+		return nil, err
+	}
+
+	allergyWarnings := s.cdsService.CheckAllergies(med.Name, patient.Allergies)
+	warnings = append(warnings, allergyWarnings...)
+
+	// 2. Check Interactions
+	activeRx, err := s.repo.ListActivePrescriptions(prescription.PatientID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert []*models.Prescription to []models.Prescription for the service
+	var activeRxList []models.Prescription
+	for _, rx := range activeRx {
+		activeRxList = append(activeRxList, *rx)
+	}
+
+	interactionWarnings := s.cdsService.CheckInteractions(prescription.MedicationID, activeRxList)
+	warnings = append(warnings, interactionWarnings...)
+
+	return warnings, nil
 }

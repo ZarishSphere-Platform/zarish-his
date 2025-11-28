@@ -29,6 +29,7 @@ export interface Admission {
   ID: number;
   patient_id: number;
   patient?: any; // Replace with Patient type
+  ward_id: number;
   bed_id: number;
   bed?: Bed;
   admission_date: string;

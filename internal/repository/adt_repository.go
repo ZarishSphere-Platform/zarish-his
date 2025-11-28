@@ -103,3 +103,60 @@ func (r *ADTRepository) ListAdmissions(status string) ([]models.Admission, error
 	err := query.Find(&admissions).Error
 	return admissions, err
 }
+
+func (r *ADTRepository) GetAdmission(id uint) (*models.Admission, error) {
+	var admission models.Admission
+	err := r.db.Preload("Patient").Preload("Bed").Preload("Ward").First(&admission, id).Error
+	return &admission, err
+}
+
+// Transfer Operations
+func (r *ADTRepository) CreateTransfer(transfer *models.Transfer) error {
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		// Create transfer record
+		if err := tx.Create(transfer).Error; err != nil {
+			return err
+		}
+
+		// Update admission's current location
+		if err := tx.Model(&models.Admission{}).Where("id = ?", transfer.AdmissionID).Updates(map[string]interface{}{
+			"ward_id": transfer.ToWardID,
+			"bed_id":  transfer.ToBedID,
+		}).Error; err != nil {
+			return err
+		}
+
+		// Update old bed status to Available
+		if err := tx.Model(&models.Bed{}).Where("id = ?", transfer.FromBedID).Update("status", "Available").Error; err != nil {
+			return err
+		}
+
+		// Update new bed status to Occupied
+		if err := tx.Model(&models.Bed{}).Where("id = ?", transfer.ToBedID).Update("status", "Occupied").Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
+}
+
+func (r *ADTRepository) ListTransfers(admissionID uint) ([]models.Transfer, error) {
+	var transfers []models.Transfer
+	query := r.db.Preload("FromWard").Preload("FromBed").Preload("ToWard").Preload("ToBed")
+	if admissionID > 0 {
+		query = query.Where("admission_id = ?", admissionID)
+	}
+	err := query.Find(&transfers).Error
+	return transfers, err
+}
+
+// Discharge Summary Operations
+func (r *ADTRepository) CreateDischargeSummary(summary *models.DischargeSummary) error {
+	return r.db.Create(summary).Error
+}
+
+func (r *ADTRepository) GetDischargeSummary(admissionID uint) (*models.DischargeSummary, error) {
+	var summary models.DischargeSummary
+	err := r.db.Where("admission_id = ?", admissionID).First(&summary).Error
+	return &summary, err
+}

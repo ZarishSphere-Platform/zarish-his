@@ -105,3 +105,63 @@ func (h *ADTHandler) ListActiveAdmissions(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, admissions)
 }
+
+func (h *ADTHandler) GetAdmission(c *gin.Context) {
+	id, _ := strconv.Atoi(c.Param("id"))
+	admission, err := h.service.GetAdmission(uint(id))
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Admission not found"})
+		return
+	}
+	c.JSON(http.StatusOK, admission)
+}
+
+func (h *ADTHandler) TransferPatient(c *gin.Context) {
+	var transfer models.Transfer
+	if err := c.ShouldBindJSON(&transfer); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := h.service.TransferPatient(&transfer); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, transfer)
+}
+
+func (h *ADTHandler) ListTransfers(c *gin.Context) {
+	admissionID, _ := strconv.Atoi(c.Query("admission_id"))
+	transfers, err := h.service.ListTransfers(uint(admissionID))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, transfers)
+}
+
+func (h *ADTHandler) CreateDischargeSummary(c *gin.Context) {
+	var summary models.DischargeSummary
+	if err := c.ShouldBindJSON(&summary); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := h.service.CreateDischargeSummary(&summary); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, summary)
+}
+
+func (h *ADTHandler) GetDischargeSummary(c *gin.Context) {
+	admissionID, _ := strconv.Atoi(c.Param("id"))
+	summary, err := h.service.GetDischargeSummary(uint(admissionID))
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Discharge summary not found"})
+		return
+	}
+	c.JSON(http.StatusOK, summary)
+}

@@ -10,11 +10,15 @@ import (
 )
 
 type MedicationHandler struct {
-	service *service.MedicationService
+	service        *service.MedicationService
+	patientService *service.PatientService
 }
 
-func NewMedicationHandler(service *service.MedicationService) *MedicationHandler {
-	return &MedicationHandler{service: service}
+func NewMedicationHandler(service *service.MedicationService, patientService *service.PatientService) *MedicationHandler {
+	return &MedicationHandler{
+		service:        service,
+		patientService: patientService,
+	}
 }
 
 func (h *MedicationHandler) CreateMedication(c *gin.Context) {
@@ -54,6 +58,31 @@ func (h *MedicationHandler) CreatePrescription(c *gin.Context) {
 	if err := c.ShouldBindJSON(&prescription); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
+	}
+
+	// CDS Checks
+	force := c.Query("force") == "true"
+	if !force {
+		patient, err := h.patientService.GetPatientByID(prescription.PatientID)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid patient ID"})
+			return
+		}
+
+		warnings, err := h.service.CheckPrescriptionSafety(&prescription, patient)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to perform safety checks: " + err.Error()})
+			return
+		}
+
+		if len(warnings) > 0 {
+			c.JSON(http.StatusConflict, gin.H{
+				"status":   "warning",
+				"warnings": warnings,
+				"message":  "Safety warnings detected. Use ?force=true to override.",
+			})
+			return
+		}
 	}
 
 	createdPrescription, err := h.service.CreatePrescription(&prescription)

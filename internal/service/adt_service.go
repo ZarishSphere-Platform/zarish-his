@@ -67,3 +67,52 @@ func (s *ADTService) DischargePatient(admissionID uint) error {
 func (s *ADTService) ListActiveAdmissions() ([]models.Admission, error) {
 	return s.repo.ListAdmissions("Admitted")
 }
+
+func (s *ADTService) GetAdmission(id uint) (*models.Admission, error) {
+	return s.repo.GetAdmission(id)
+}
+
+// TransferPatient transfers a patient to a new ward/bed
+func (s *ADTService) TransferPatient(transfer *models.Transfer) error {
+	// Validate destination bed is available
+	beds, err := s.repo.ListBeds("Available")
+	if err != nil {
+		return err
+	}
+
+	isAvailable := false
+	for _, bed := range beds {
+		if bed.ID == transfer.ToBedID {
+			isAvailable = true
+			break
+		}
+	}
+
+	if !isAvailable {
+		return errors.New("destination bed is not available")
+	}
+
+	transfer.TransferDate = time.Now()
+	return s.repo.CreateTransfer(transfer)
+}
+
+func (s *ADTService) ListTransfers(admissionID uint) ([]models.Transfer, error) {
+	return s.repo.ListTransfers(admissionID)
+}
+
+// CreateDischargeSummary creates a discharge summary and updates admission status
+func (s *ADTService) CreateDischargeSummary(summary *models.DischargeSummary) error {
+	summary.DischargeDate = time.Now()
+
+	// Create the summary
+	if err := s.repo.CreateDischargeSummary(summary); err != nil {
+		return err
+	}
+
+	// Discharge the patient
+	return s.repo.DischargePatient(summary.AdmissionID)
+}
+
+func (s *ADTService) GetDischargeSummary(admissionID uint) (*models.DischargeSummary, error) {
+	return s.repo.GetDischargeSummary(admissionID)
+}

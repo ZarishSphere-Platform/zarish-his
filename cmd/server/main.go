@@ -78,6 +78,8 @@ func main() {
 		&models.Room{},
 		&models.Bed{},
 		&models.Admission{},
+		&models.Transfer{},
+		&models.DischargeSummary{},
 		&models.PharmacyStock{},
 		&models.Dispensing{},
 		&models.StockMovement{},
@@ -100,7 +102,10 @@ func main() {
 	encounterService := service.NewEncounterService(encounterRepo)
 	vitalSignsService := service.NewVitalSignsService(vitalSignsRepo)
 	clinicalNoteService := service.NewClinicalNoteService(clinicalNoteRepo)
-	medicationService := service.NewMedicationService(medicationRepo)
+
+	cdsService := service.NewCDSService()
+	medicationService := service.NewMedicationService(medicationRepo, cdsService)
+
 	labService := service.NewLabService(labRepo)
 	appointmentService := service.NewAppointmentService(appointmentRepo)
 
@@ -109,7 +114,7 @@ func main() {
 	encounterHandler := handler.NewEncounterHandler(encounterService)
 	vitalSignsHandler := handler.NewVitalSignsHandler(vitalSignsService)
 	clinicalNoteHandler := handler.NewClinicalNoteHandler(clinicalNoteService)
-	medicationHandler := handler.NewMedicationHandler(medicationService)
+	medicationHandler := handler.NewMedicationHandler(medicationService, patientService)
 	labHandler := handler.NewLabHandler(labService)
 	appointmentHandler := handler.NewAppointmentHandler(appointmentService)
 
@@ -251,6 +256,11 @@ func main() {
 		api.POST("/admissions", adtHandler.AdmitPatient)
 		api.POST("/admissions/:id/discharge", adtHandler.DischargePatient)
 		api.GET("/admissions/active", adtHandler.ListActiveAdmissions)
+		api.GET("/admissions/:id", adtHandler.GetAdmission)
+		api.POST("/transfers", adtHandler.TransferPatient)
+		api.GET("/transfers", adtHandler.ListTransfers)
+		api.POST("/discharge-summaries", adtHandler.CreateDischargeSummary)
+		api.GET("/admissions/:id/discharge-summary", adtHandler.GetDischargeSummary)
 
 		// Reporting Routes
 		api.GET("/reports/daily-opd", reportingHandler.GetDailyOPDReport)
