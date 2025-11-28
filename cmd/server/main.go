@@ -59,6 +59,14 @@ func main() {
 		&models.Encounter{},
 		&models.VitalSigns{},
 		&models.ClinicalNote{},
+		&models.Invoice{},
+		&models.InvoiceItem{},
+		&models.Payment{},
+		&models.InsuranceClaim{},
+		&models.ImagingStudy{},
+		&models.ImagingSeries{},
+		&models.ImagingInstance{},
+		&models.RadiologyReport{},
 		&models.Medication{},
 		&models.Prescription{},
 		&models.LabTest{},
@@ -105,9 +113,13 @@ func main() {
 	appointmentHandler := handler.NewAppointmentHandler(appointmentService)
 
 	// Initialize ADT
-	adtRepo := repository.NewADTRepository(db)
-	adtService := service.NewADTService(adtRepo)
-	adtHandler := handler.NewADTHandler(adtService)
+	billingRepo := repository.NewBillingRepository(db)
+	billingService := service.NewBillingService(billingRepo)
+	billingHandler := handler.NewBillingHandler(billingService)
+
+	radiologyRepo := repository.NewRadiologyRepository(db)
+	radiologyService := service.NewRadiologyService(radiologyRepo)
+	radiologyHandler := handler.NewRadiologyHandler(radiologyService)
 
 	// Initialize Reporting
 	reportingService := service.NewReportingService(db)
@@ -138,6 +150,28 @@ func main() {
 
 	api := r.Group("/api/v1")
 	{
+		// Insurance Routes
+		insurance := api.Group("/insurance")
+		{
+			insurance.POST("/claims", billingHandler.SubmitClaim)
+			insurance.GET("/claims/:id", billingHandler.GetClaim)
+			insurance.GET("/claims/pending", billingHandler.GetPendingClaims)
+			insurance.POST("/claims/:id/approve", billingHandler.ApproveClaim)
+			insurance.POST("/claims/:id/reject", billingHandler.RejectClaim)
+		}
+
+		// Radiology Routes
+		radiology := api.Group("/radiology")
+		{
+			radiology.POST("/studies", radiologyHandler.CreateStudy)
+			radiology.GET("/studies", radiologyHandler.ListStudies)
+			radiology.GET("/studies/:id", radiologyHandler.GetStudy)
+			radiology.PUT("/studies/:id/status", radiologyHandler.UpdateStatus)
+			radiology.GET("/worklist", radiologyHandler.GetWorklist)
+
+			radiology.POST("/reports", radiologyHandler.CreateReport)
+			radiology.PUT("/reports/:id", radiologyHandler.UpdateReport)
+		}
 		// Patient Routes
 		api.POST("/patients", patientHandler.CreatePatient)
 		api.GET("/patients/:id", patientHandler.GetPatient)
