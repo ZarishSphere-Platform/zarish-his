@@ -1,4 +1,4 @@
-import { InsuranceClaim, Invoice, Payment } from '../types/billing';
+import type { InsuranceClaim, Invoice, Payment } from '../types/billing';
 import api from './api';
 
 export const billingService = {

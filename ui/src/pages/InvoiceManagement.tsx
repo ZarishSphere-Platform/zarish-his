@@ -2,9 +2,9 @@ import { ArrowLeft, Plus, Printer, Save, Trash2 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { billingService } from '../services/billingService';
-import { patientService } from '../services/patientService';
-import { Patient } from '../types';
-import { Invoice, InvoiceItem } from '../types/billing';
+import { PatientService } from '../services/patientService';
+import type { Patient } from '../types';
+import type { Invoice, InvoiceItem } from '../types/billing';
 
 const InvoiceManagement: React.FC = () => {
   const navigate = useNavigate();
@@ -33,8 +33,8 @@ const InvoiceManagement: React.FC = () => {
 
   const fetchPatients = async () => {
     try {
-      const data = await patientService.getPatients();
-      setPatients(data);
+      const response = await PatientService.list(1, 100);
+      setPatients(response.data);
     } catch (error) {
       console.error('Error fetching patients:', error);
     }
@@ -181,7 +181,7 @@ const InvoiceManagement: React.FC = () => {
             <option value="">Select Patient</option>
             {patients.map((p) => (
               <option key={p.id} value={p.id}>
-                {p.first_name} {p.last_name}
+                {p.given_name} {p.family_name}
               </option>
             ))}
           </select>

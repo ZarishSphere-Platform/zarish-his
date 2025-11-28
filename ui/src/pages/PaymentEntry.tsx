@@ -2,7 +2,7 @@ import { ArrowLeft, CheckCircle, DollarSign } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { billingService } from '../services/billingService';
-import { Invoice, Payment } from '../types/billing';
+import type { Invoice, Payment } from '../types/billing';
 
 const PaymentEntry: React.FC = () => {
   const navigate = useNavigate();
@@ -92,8 +92,8 @@ const PaymentEntry: React.FC = () => {
         <div className="p-6 border-b border-gray-100 bg-gray-50">
           <h1 className="text-xl font-bold text-gray-900">Record Payment</h1>
           <p className="text-gray-500 mt-1">
-            Invoice #{invoice.invoice_number} - {invoice.patient?.first_name}{' '}
-            {invoice.patient?.last_name}
+            Invoice #{invoice.invoice_number} - {invoice.patient?.given_name}{' '}
+            {invoice.patient?.family_name}
           </p>
         </div>
 

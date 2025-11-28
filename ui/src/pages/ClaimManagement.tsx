@@ -2,7 +2,7 @@ import { CheckCircle, Eye, Search, Shield, XCircle } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { billingService } from '../services/billingService';
-import { InsuranceClaim } from '../types/billing';
+import type { InsuranceClaim } from '../types/billing';
 
 const ClaimManagement: React.FC = () => {
   const navigate = useNavigate();
@@ -122,7 +122,7 @@ const ClaimManagement: React.FC = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-500">
-                    {claim.patient?.first_name} {claim.patient?.last_name}
+                    {claim.patient?.given_name} {claim.patient?.family_name}
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-500">
                     {claim.insurance_provider}

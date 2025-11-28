@@ -2,7 +2,7 @@ import { AlertCircle, DollarSign, Plus, Shield } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { billingService } from '../services/billingService';
-import { InsuranceClaim, Invoice, Payment } from '../types/billing';
+import type { InsuranceClaim, Invoice, Payment } from '../types/billing';
 
 const BillingDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -199,7 +199,8 @@ const BillingDashboard: React.FC = () => {
                       {invoice.invoice_number}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {invoice.patient?.first_name} {invoice.patient?.last_name}
+                      {invoice.patient?.given_name}{' '}
+                      {invoice.patient?.family_name}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {new Date(invoice.due_date).toLocaleDateString()}
