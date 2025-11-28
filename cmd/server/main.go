@@ -55,6 +55,7 @@ func main() {
 	// Auto-migrate models
 	log.Println("Running database migrations...")
 	err = db.AutoMigrate(
+		&models.User{},
 		&models.Patient{},
 		&models.Encounter{},
 		&models.VitalSigns{},
@@ -133,6 +134,15 @@ func main() {
 	pharmacyRepo := repository.NewPharmacyRepository(db)
 	pharmacyService := service.NewPharmacyService(pharmacyRepo)
 	pharmacyHandler := handler.NewPharmacyHandler(pharmacyService)
+
+	// Initialize Portal
+	portalHandler := handler.NewPortalHandler(
+		patientService,
+		appointmentService,
+		labService,
+		medicationService,
+		clinicalNoteService,
+	)
 
 	// Setup Router
 	r := gin.Default()
@@ -254,6 +264,14 @@ func main() {
 		api.GET("/pharmacy/dispensing-queue", pharmacyHandler.GetDispensingQueue)
 		api.GET("/pharmacy/history/:patient_id", pharmacyHandler.GetPatientHistory)
 		api.GET("/pharmacy/movements/:medication_id", pharmacyHandler.GetStockMovements)
+
+		// Portal Routes
+		portal := api.Group("/portal")
+		{
+			portal.GET("/dashboard", portalHandler.GetDashboard)
+			portal.GET("/appointments", portalHandler.GetAppointments)
+			portal.GET("/records", portalHandler.GetRecords)
+		}
 	}
 
 	log.Printf("Zarish-HIS server starting on :%s", port)
