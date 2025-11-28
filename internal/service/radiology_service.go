@@ -60,10 +60,9 @@ func (s *RadiologyService) StartExam(id uint, techID uint) error {
 }
 
 func (s *RadiologyService) CompleteExam(id uint) error {
-	now := time.Now()
 	// In a real system, we'd verify that images have been received
-	return s.repo.UpdateStudyStatus(id, "completed")
 	// Also update CompletedAt in a real implementation
+	return s.repo.UpdateStudyStatus(id, "completed")
 }
 
 func (s *RadiologyService) CreateReport(report *models.RadiologyReport) error {
