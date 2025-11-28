@@ -113,6 +113,10 @@ func main() {
 	appointmentHandler := handler.NewAppointmentHandler(appointmentService)
 
 	// Initialize ADT
+	adtRepo := repository.NewADTRepository(db)
+	adtService := service.NewADTService(adtRepo)
+	adtHandler := handler.NewADTHandler(adtService)
+
 	billingRepo := repository.NewBillingRepository(db)
 	billingService := service.NewBillingService(billingRepo)
 	billingHandler := handler.NewBillingHandler(billingService)
