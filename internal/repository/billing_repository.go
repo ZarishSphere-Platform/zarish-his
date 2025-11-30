@@ -149,7 +149,7 @@ func (r *BillingRepository) ListClaims(status string) ([]models.InsuranceClaim, 
 	return claims, err
 }
 
-func (r *BillingRepository) UpdateClaimStatus(id uint, status string, approvedAmount float64) error {
+func (r *BillingRepository) UpdateClaimStatus(id uint, status string, approvedAmount float64, reason string) error {
 	updates := map[string]interface{}{
 		"status":          status,
 		"approved_amount": approvedAmount,
@@ -157,6 +157,10 @@ func (r *BillingRepository) UpdateClaimStatus(id uint, status string, approvedAm
 
 	if status == "approved" || status == "rejected" {
 		updates["reviewed_at"] = time.Now()
+	}
+
+	if status == "rejected" && reason != "" {
+		updates["rejection_reason"] = reason
 	}
 
 	if status == "paid" {

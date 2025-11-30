@@ -1,18 +1,20 @@
 import { ArrowLeft, CheckCircle, DollarSign } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { billingService } from '../services/billingService';
 import type { Invoice, Payment } from '../types/billing';
 
 const PaymentEntry: React.FC = () => {
   const navigate = useNavigate();
   const { invoiceId } = useParams<{ invoiceId: string }>();
+  const { user } = useAuth();
 
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [payment, setPayment] = useState<Partial<Payment>>({
     amount: 0,
     payment_method: 'cash',
-    received_by: 'Current User', // TODO: Get from auth context
+    received_by: user?.name || 'Current User', // TODO: Get from auth context
     notes: '',
   });
 

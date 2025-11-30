@@ -1,6 +1,8 @@
 import { AlertCircle, ArrowRight } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 
+import { useAuth } from '../context/AuthContext';
+
 interface TransferModalProps {
   admissionId: number;
   currentWardId: number;
@@ -43,6 +45,8 @@ const TransferModal: React.FC<TransferModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [wards, setWards] = useState<Ward[]>([]);
   const [availableBeds, setAvailableBeds] = useState<BedOption[]>([]);
+  const { user } = useAuth();
+
   const [formData, setFormData] = useState<TransferData>({
     admission_id: admissionId,
     from_ward_id: currentWardId,
@@ -50,7 +54,7 @@ const TransferModal: React.FC<TransferModalProps> = ({
     to_ward_id: 0,
     to_bed_id: 0,
     reason: '',
-    authorized_by: 1, // TODO: Get from auth context
+    authorized_by: user?.id || 1, // Replaced hardcoded ID with user.id from auth context
   });
 
   useEffect(() => {

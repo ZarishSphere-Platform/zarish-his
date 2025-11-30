@@ -93,12 +93,11 @@ func (s *BillingService) GetPendingClaims() ([]models.InsuranceClaim, error) {
 }
 
 func (s *BillingService) ApproveClaim(id uint, approvedAmount float64) error {
-	return s.repo.UpdateClaimStatus(id, "approved", approvedAmount)
+	return s.repo.UpdateClaimStatus(id, "approved", approvedAmount, "")
 }
 
 func (s *BillingService) RejectClaim(id uint, reason string) error {
-	// TODO: Store rejection reason
-	return s.repo.UpdateClaimStatus(id, "rejected", 0)
+	return s.repo.UpdateClaimStatus(id, "rejected", 0, reason)
 }
 
 func (s *BillingService) MarkClaimPaid(id uint) error {
@@ -111,7 +110,7 @@ func (s *BillingService) MarkClaimPaid(id uint) error {
 		return errors.New("claim must be approved before marking as paid")
 	}
 
-	return s.repo.UpdateClaimStatus(id, "paid", claim.ApprovedAmount)
+	return s.repo.UpdateClaimStatus(id, "paid", claim.ApprovedAmount, "")
 }
 
 // Helper functions

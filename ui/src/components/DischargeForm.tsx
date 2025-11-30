@@ -1,5 +1,6 @@
 import { FileText, User } from 'lucide-react';
 import React, { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 
 interface DischargeFormProps {
   admissionId: number;
@@ -26,15 +27,16 @@ const DischargeForm: React.FC<DischargeFormProps> = ({
   onCancel,
 }) => {
   const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
+
   const [formData, setFormData] = useState<DischargeSummaryData>({
     admission_id: admissionId,
     discharge_type: 'Regular',
-    chief_complaint: '',
-    diagnosis: '',
-    treatment_summary: '',
-    medications_on_discharge: '',
+    discharge_date: new Date().toISOString().split('T')[0],
+    clinical_summary: '',
+    medications_prescribed: '',
     follow_up_instructions: '',
-    signed_by: 1, // TODO: Get from auth context
+    signed_by: user?.id || 1, // Replaced hardcoded ID with user.id from auth context
   });
 
   const handleChange = (
